@@ -13,3 +13,20 @@ dependencies {
     testCompile 'org.seleniumhq.selenium:selenium-java:3.4.0'
     testCompile 'info.cukes:cucumber-java:1.2.5', 'info.cukes:cucumber-junit:1.2.5'
 }
+
+task executeCucumberFeatures(type: Test) {
+    def htmlReportPath = 'build/cucumber/report'
+    jvmArgs '-Dcucumber.options= ' +
+            '--plugin pretty ' +
+            '--plugin json:build/cucumber/cucumber.json ' +
+            "--plugin html:$htmlReportPath"
+
+    testLogging {
+        events "skipped", "failed", "passed", "standard_out"
+    }
+    
+    doLast { 
+        logger.lifecycle "See Cucumber report at $projectDir/$htmlReportPath/index.html"
+        logger.lifecycle "See also standard gradle report at ${reports.html.entryPoint.toString()}"
+    }
+}
