@@ -1,0 +1,15 @@
+apply plugin: 'java'
+
+group = 'automation'
+version = '1.0-SNAPSHOT'
+
+description = "Automated Selenium tests for e-shop"
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'org.seleniumhq.selenium:selenium-java:3.4.0'
+    testCompile 'info.cukes:cucumber-java:1.2.5', 'info.cukes:cucumber-junit:1.2.5'
+}
