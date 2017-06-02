@@ -1,4 +1,4 @@
-package task.selenium.utils;
+package task.selenium.driver;
 
 import java.util.stream.Stream;
 
