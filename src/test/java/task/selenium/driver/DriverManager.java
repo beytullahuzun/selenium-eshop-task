@@ -55,7 +55,7 @@ public class DriverManager {
 
     private static String getDriverAbsolutePath(String path) {
         URL url = DriverManager.class.getResource(path);
-        File file = null;
+        File file;
         try {
             file = new File(url.toURI());
         } catch (URISyntaxException e) {
