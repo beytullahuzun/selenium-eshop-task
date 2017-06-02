@@ -1,4 +1,4 @@
-###Automated Selenium tests for e-shop [automationpractice.com](automationpractice.com)
+### Automated Selenium tests for e-shop [automationpractice.com](automationpractice.com)
 
 To execute tests from command line using Gradle run the following command 
 
