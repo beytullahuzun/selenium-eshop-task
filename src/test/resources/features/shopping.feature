@@ -20,12 +20,12 @@ Feature: Search functionality on http://automationpractice.com
     And client pushes search button
     Then no items are found for search term "trousers"
 
-  Scenario: Invalid characters are filtered out from search term
+  Scenario: Invalid characters in search term are ignored 
     Given client is at main page
     When client enters "!@#$%^&*()_  +shirt{}  [];:'",.<>/?" in search bar
     And client pushes search button
     Then only items with keyword "shirt" should be filtered out
-    
+
   Scenario: No items are returned if client enters too long string
     Given client is at main page
     When client enters 300 characters long string in search bar

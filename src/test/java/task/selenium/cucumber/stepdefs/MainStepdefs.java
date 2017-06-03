@@ -12,7 +12,6 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import task.selenium.config.TestProperties;
 import task.selenium.driver.DriverManager;
-import task.selenium.pageobject.BasePage;
 import task.selenium.pageobject.MainPage;
 import task.selenium.pageobject.ProductPage;
 import task.selenium.pageobject.ResultsPage;
@@ -28,7 +27,6 @@ import static task.selenium.config.TestProperties.SCREENSHOT_PATH;
 
 public class MainStepdefs {
     private WebDriver driver = DriverManager.getDriver();
-    private BasePage page;
     private MainPage mainPage;
     private ResultsPage resultsPage;
     private ProductPage productPage;

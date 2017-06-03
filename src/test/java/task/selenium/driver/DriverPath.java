@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 public enum DriverPath {
 
-    UNIX("linux", "/driver/phantomjs", "/driver/chromedriver"),
+    LINUX("linux", "/driver/phantomjs", "/driver/chromedriver"),
     WINDOWS("windows", "/driver/phantomjs.exe", "/driver/chromedriver.exe");
 
     private final String osDescriptor;
@@ -17,6 +17,14 @@ public enum DriverPath {
         this.chromedriverPath = chromedriverPath;
     }
 
+    public static String getChromeDriverPath() {
+        return getAbsolutePath(getOs().chromedriverPath);
+    }
+
+    public static String getPhantomjsPath() {
+        return getAbsolutePath(getOs().phantomjsPath);
+    }
+
     private static DriverPath getOs() {
         String os = System.getProperty("os.name").toLowerCase().split("\\s+")[0];
 
@@ -26,11 +34,7 @@ public enum DriverPath {
                 .orElseThrow(() -> new RuntimeException("Unsupported operating system " + os));
     }
 
-    public static String getChromeDriverPath() {
-        return getOs().chromedriverPath;
-    }
-
-    public static String getPhantomjsPath() {
-        return getOs().phantomjsPath;
+    private static String getAbsolutePath(String path) {
+        return DriverPath.class.getResource(path).getPath();
     }
 }
