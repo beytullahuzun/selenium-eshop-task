@@ -15,8 +15,13 @@ By default **Phantomjs** is used.
 
 Downloading proper webdrivers is handled by specific Gradle task named `downloadDrivers`. This gradle task downloads drivers to `/src/test/resources/driver` folder.
 > Note: in IDE it doesn't happen automatically, so on the first run you need to execute this Gradle task either from IDE or command line using the following command
+_on Linux_
 ```bash
 ./gradlew clean downloadDrivers
+```
+_on Windows_
+```bash
+gradlew.bat clean downloadDrivers
 ```
 
 ### Tests execution
