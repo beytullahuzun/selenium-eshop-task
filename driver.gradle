@@ -1,0 +1,62 @@
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+
+ext {
+    chromedriverVersion = "2.29"
+    phantomjsVersion = "2.1.1"
+
+    phantomLinkLinux = "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$phantomjsVersion-linux-x86_64.tar.bz2"
+    phantomLinkWindows = "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$phantomjsVersion-windows.zip"
+    chromedriverLinkLinux = "https://chromedriver.storage.googleapis.com/$chromedriverVersion/chromedriver_linux64.zip"
+    chromedriverLinkWindows = "https://chromedriver.storage.googleapis.com/$chromedriverVersion/chromedriver_win32.zip"
+}
+def driverDir = "$projectDir/src/test/resources/driver"
+
+def downloadArchive = { String link ->
+    def archiveName = link.split("/").last()
+
+    download {
+        src link
+        dest new File(driverDir, archiveName)
+        overwrite false
+    }
+    "$driverDir/$archiveName"
+}
+
+def getChromedriver = { String link, String fileName ->
+    def archivePath = downloadArchive(link)
+
+    copy {
+        from zipTree("$archivePath")
+        into driverDir
+    }
+}
+
+def getPhantomJs = { String link, String fileName ->
+    def archivePath = downloadArchive(link)
+    FileTree archiveTree = archivePath.endsWith("zip") ? zipTree("$archivePath") : tarTree("$archivePath")
+
+    copy {
+        from(archiveTree) { include "**/bin/$fileName" }
+        into "$driverDir"
+    }
+    def pathToDriver = fileTree(dir: "$driverDir", includes: ["*/bin/$fileName"]).asPath
+
+    copy {
+        from pathToDriver
+        into driverDir
+    }
+}
+
+task('downloadDrivers') {
+    doLast {
+        if (isFamily(FAMILY_UNIX)) {
+            getPhantomJs phantomLinkLinux, 'phantomjs'
+            getChromedriver chromedriverLinkLinux, 'chromedriver'
+        } else if (isFamily(FAMILY_WINDOWS)) {
+            getPhantomJs phantomLinkWindows, 'phantomjs.exe'
+            getChromedriver chromedriverLinkWindows, 'chromedriver.exe'
+        } else throw new GradleException("Unsupported operating system")
+    }
+}
+
+tasks.downloadDrivers.mustRunAfter tasks.clean

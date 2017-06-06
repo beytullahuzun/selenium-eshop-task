@@ -11,6 +11,20 @@
 To set browser change `browser` property under _$projectDir/src/test/resources/props/test.properties_.
 By default **Phantomjs** is used. 
 
+### Getting webdriver
+
+Downloading proper webdrivers is handled by specific Gradle task named `downloadDrivers`. This gradle task downloads drivers to `/src/test/resources/driver` folder.
+> Note: in IDE it doesn't happen automatically, so on the first run you need to execute this Gradle task either from IDE or command line using the following command
+
+_on Linux_
+```bash
+./gradlew clean downloadDrivers
+```
+_on Windows_
+```bash
+gradlew.bat clean downloadDrivers
+```
+
 ### Tests execution
 
 Tests can be executed either from your IDE or from command line using Gradle. Run the following command 
@@ -23,3 +37,4 @@ Tests can be executed either from your IDE or from command line using Gradle. Ru
 ```bash
 gradlew.bat clean executeCucumberFeatures
 ```
+> Note: if you run tests from command line, no need to run _downloadDrivers_ task as _executeCucumberFeatures_ depends on downloading the drivers
