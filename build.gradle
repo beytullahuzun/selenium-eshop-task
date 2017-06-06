@@ -1,4 +1,7 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+    id 'de.undercouch.download' version '3.2.0'
+}
 
 group = 'automation'
 version = '1.0-SNAPSHOT'
@@ -14,7 +17,11 @@ dependencies {
     testCompile 'info.cukes:cucumber-java:1.2.5', 'info.cukes:cucumber-junit:1.2.5'
 }
 
-task executeCucumberFeatures(type: Test) {
+apply from: 'driver.gradle'
+defaultTasks 'downloadDrivers'
+tasks.downloadDrivers.mustRunAfter tasks.clean
+
+task executeCucumberFeatures(type: Test, dependsOn: downloadDrivers) {
     def htmlReportPath = 'build/cucumber/report'
     jvmArgs '-Dcucumber.options= ' +
             '--plugin pretty ' +
@@ -24,8 +31,8 @@ task executeCucumberFeatures(type: Test) {
     testLogging {
         events "skipped", "failed", "passed", "standard_out"
     }
-    
-    doLast { 
+
+    doLast {
         logger.lifecycle "See Cucumber report at $projectDir/$htmlReportPath/index.html"
         logger.lifecycle "See also standard gradle report at ${reports.html.entryPoint.toString()}"
     }

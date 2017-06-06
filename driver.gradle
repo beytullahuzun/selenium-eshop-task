@@ -1,0 +1,59 @@
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+
+ext {
+    chromedriverVersion = "2.29"
+    phantomjsVersion = "2.1.1"
+
+    phantomLinkLinux = "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$phantomjsVersion-linux-x86_64.tar.bz2"
+    phantomLinkWindows = "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$phantomjsVersion-windows.zip"
+    chromedriverLinkLinux = "https://chromedriver.storage.googleapis.com/$chromedriverVersion/chromedriver_linux64.zip"
+    chromedriverLinkWindows = "https://chromedriver.storage.googleapis.com/$chromedriverVersion/chromedriver_win32.zip"
+}
+
+def downloadArchive = { link, destination, name ->
+    download {
+        src link
+        dest new File(destination, name)
+        overwrite false
+    }
+}
+
+def getChromedriver = { String link, String fileName ->
+    downloadArchive link, "$buildDir/tmp/", fileName
+
+    copy {
+        from zipTree("$buildDir/tmp/$fileName")
+        into sourceSets.test.output.resourcesDir.path + "/driver"
+    }
+}
+
+def getPhantomJs = { String link, String fileName ->
+    def tmpDir = "$buildDir/tmp"
+    downloadArchive link, tmpDir, fileName
+
+    copy {
+        from(isFamily(FAMILY_UNIX) ?
+                tarTree(resources.bzip2("$tmpDir/${fileName}"))
+                : zipTree("$buildDir/tmp/$fileName")) { include "**/bin/$fileName" }
+        into "$tmpDir"
+    }
+
+    def pathToDriver = fileTree(dir: "$tmpDir", includes: ["*/bin/$fileName"]).find { it.name == fileName }.toString()
+
+    copy {
+        from pathToDriver
+        into sourceSets.test.output.resourcesDir.path + "/driver"
+    }
+}
+
+task('downloadDrivers') {
+    doLast {
+        if (isFamily(FAMILY_UNIX)) {
+            getPhantomJs phantomLinkLinux, 'phantomjs'
+            getChromedriver chromedriverLinkLinux, 'chromedriver'
+        } else if (isFamily(FAMILY_WINDOWS)) {
+            getPhantomJs phantomLinkWindows, 'phantomjs.exe'
+            getChromedriver chromedriverLinkWindows, 'chromedriver.exe'
+        } else throw new GradleException("Unsupported operating system")
+    }
+}
