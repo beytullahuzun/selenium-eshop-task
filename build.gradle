@@ -19,7 +19,6 @@ dependencies {
 
 apply from: 'driver.gradle'
 defaultTasks 'downloadDrivers'
-tasks.downloadDrivers.mustRunAfter tasks.clean
 
 task executeCucumberFeatures(type: Test, dependsOn: downloadDrivers) {
     def htmlReportPath = 'build/cucumber/report'

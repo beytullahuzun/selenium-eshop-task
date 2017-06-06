@@ -9,40 +9,41 @@ ext {
     chromedriverLinkLinux = "https://chromedriver.storage.googleapis.com/$chromedriverVersion/chromedriver_linux64.zip"
     chromedriverLinkWindows = "https://chromedriver.storage.googleapis.com/$chromedriverVersion/chromedriver_win32.zip"
 }
+def driverDir = "$projectDir/src/test/resources/driver"
 
-def downloadArchive = { link, destination, name ->
+def downloadArchive = { String link ->
+    def archiveName = link.split("/").last()
+
     download {
         src link
-        dest new File(destination, name)
+        dest new File(driverDir, archiveName)
         overwrite false
     }
+    "$driverDir/$archiveName"
 }
 
 def getChromedriver = { String link, String fileName ->
-    downloadArchive link, "$buildDir/tmp/", fileName
+    def archivePath = downloadArchive(link)
 
     copy {
-        from zipTree("$buildDir/tmp/$fileName")
-        into sourceSets.test.output.resourcesDir.path + "/driver"
+        from zipTree("$archivePath")
+        into driverDir
     }
 }
 
 def getPhantomJs = { String link, String fileName ->
-    def tmpDir = "$buildDir/tmp"
-    downloadArchive link, tmpDir, fileName
+    def archivePath = downloadArchive(link)
+    FileTree archiveTree = archivePath.endsWith("zip") ? zipTree("$archivePath") : tarTree("$archivePath")
 
     copy {
-        from(isFamily(FAMILY_UNIX) ?
-                tarTree(resources.bzip2("$tmpDir/${fileName}"))
-                : zipTree("$buildDir/tmp/$fileName")) { include "**/bin/$fileName" }
-        into "$tmpDir"
+        from(archiveTree) { include "**/bin/$fileName" }
+        into "$driverDir"
     }
-
-    def pathToDriver = fileTree(dir: "$tmpDir", includes: ["*/bin/$fileName"]).find { it.name == fileName }.toString()
+    def pathToDriver = fileTree(dir: "$driverDir", includes: ["*/bin/$fileName"]).asPath
 
     copy {
         from pathToDriver
-        into sourceSets.test.output.resourcesDir.path + "/driver"
+        into driverDir
     }
 }
 
@@ -57,3 +58,5 @@ task('downloadDrivers') {
         } else throw new GradleException("Unsupported operating system")
     }
 }
+
+tasks.downloadDrivers.mustRunAfter tasks.clean
